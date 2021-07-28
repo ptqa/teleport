@@ -307,6 +307,13 @@ func TestConfigReading(t *testing.T) {
 					DynamicLabels: CommandLabels,
 				},
 			},
+			Selectors: []Selector{
+				{
+					MatchLabels: map[string]apiutils.Strings{
+						"*": {"*"},
+					},
+				},
+			},
 		},
 		Metrics: Metrics{
 			Service: Service{
@@ -984,6 +991,11 @@ func makeConfigFixture() string {
 			DynamicLabels: CommandLabels,
 		},
 	}
+	conf.Databases.Selectors = []Selector{
+		{
+			MatchLabels: map[string]apiutils.Strings{"*": {"*"}},
+		},
+	}
 
 	// Metrics service.
 	conf.Metrics.EnabledFlag = "yes"
@@ -1380,6 +1392,9 @@ func TestDatabaseConfig(t *testing.T) {
 			inConfigString: `
 db_service:
   enabled: true
+  selectors:
+  - match_labels:
+      '*': '*'
   databases:
   - name: foo
     protocol: postgres

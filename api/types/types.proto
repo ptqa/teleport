@@ -194,6 +194,19 @@ message DatabaseServerSpecV3 {
         [ (gogoproto.nullable) = false, (gogoproto.jsontag) = "gcp,omitempty", deprecated = true ];
     // Databases is a list of databases this database server proxies.
     repeated DatabaseV3 Databases = 12 [ (gogoproto.jsontag) = "databases,omitempty" ];
+    // Selectors is a list of resource watcher selectors.
+    repeated Selector Selectors = 13
+        [ (gogoproto.nullable) = false, (gogoproto.jsontag) = "selectors,omitempty" ];
+}
+
+// Selector represents a single resource watcher selector.
+message Selector {
+    option (gogoproto.goproto_stringer) = false;
+    option (gogoproto.stringer) = false;
+
+    // MatchLabels is a selector that matches resource labels.
+    wrappers.LabelValues MatchLabels = 1
+        [ (gogoproto.nullable) = false, (gogoproto.jsontag) = "match_labels,omitempty" ];
 }
 
 // DatabaseV3List represents a list of databases.

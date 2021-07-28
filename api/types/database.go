@@ -347,6 +347,37 @@ func DeduplicateDatabases(databases []Database) (result []Database) {
 	return result
 }
 
+// Databases is a list of database resources.
+type Databases []Database
+
+// Find returns database with the specified name or nil.
+func (d Databases) Find(name string) Database {
+	for _, database := range d {
+		if database.GetName() == name {
+			return database
+		}
+	}
+	return nil
+}
+
+// ToMap returns these databases as a map keyed by database name.
+func (d Databases) ToMap() map[string]Database {
+	m := make(map[string]Database)
+	for _, database := range d {
+		m[database.GetName()] = database
+	}
+	return m
+}
+
+// Len returns the slice length.
+func (d Databases) Len() int { return len(d) }
+
+// Less compares databases by name.
+func (d Databases) Less(i, j int) bool { return d[i].GetName() < d[j].GetName() }
+
+// Swap swaps two databases.
+func (d Databases) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
+
 const (
 	// rdsEndpointSuffix is the RDS/Aurora endpoint suffix.
 	rdsEndpointSuffix = ".rds.amazonaws.com"

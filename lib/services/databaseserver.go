@@ -18,6 +18,7 @@ package services
 
 import (
 	"github.com/gravitational/trace"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gravitational/teleport/api/types"
 	"github.com/gravitational/teleport/lib/utils"
@@ -80,4 +81,23 @@ func UnmarshalDatabaseServer(data []byte, opts ...MarshalOption) (types.Database
 		return &s, nil
 	}
 	return nil, trace.BadParameter("database server resource version %q is not supported", h.Version)
+}
+
+// MatchDatabase returns true if the provided database server's selectors
+// match the provided database.
+func MatchDatabase(server types.DatabaseServer, database types.Database) bool {
+	for _, selector := range server.GetSelectors() {
+		if len(selector.MatchLabels.Values) == 0 {
+			return false
+		}
+		match, _, err := MatchLabels(types.LabelsFromProto(selector.MatchLabels), database.GetAllLabels())
+		if err != nil {
+			logrus.WithError(err).Errorf("Failed to match labels: %v.", database)
+			return false
+		}
+		if match {
+			return true
+		}
+	}
+	return false
 }

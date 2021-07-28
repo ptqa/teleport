@@ -588,6 +588,14 @@ type DatabasesConfig struct {
 	Enabled bool
 	// Databases is a list of databases proxied by this service.
 	Databases []Database
+	// Selectors is a list of resource monitor selectors.
+	Selectors []Selector
+}
+
+// Selector represents a single resource monitor selector.
+type Selector struct {
+	// MatchLabels is a selector that matches labels.
+	MatchLabels map[string]apiutils.Strings
 }
 
 // Database represents a single database that's being proxied.

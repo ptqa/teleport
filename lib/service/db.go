@@ -19,6 +19,7 @@ package service
 import (
 	"github.com/gravitational/teleport"
 	"github.com/gravitational/teleport/api/types"
+	"github.com/gravitational/teleport/api/types/wrappers"
 	"github.com/gravitational/teleport/lib/auth"
 	"github.com/gravitational/teleport/lib/cache"
 	"github.com/gravitational/teleport/lib/events"
@@ -31,9 +32,6 @@ import (
 )
 
 func (process *TeleportProcess) initDatabases() {
-	if len(process.Config.Databases.Databases) == 0 {
-		return
-	}
 	process.registerWithAuthServer(types.RoleDatabase, DatabasesIdentityEvent)
 	process.RegisterCriticalFunc("db.init", process.initDatabaseService)
 }
@@ -113,12 +111,23 @@ func (process *TeleportProcess) initDatabaseService() (retErr error) {
 		}
 		databases = append(databases, db)
 	}
+	var selectors []types.Selector
+	for _, selector := range process.Config.Databases.Selectors {
+		w := wrappers.LabelValues{Values: make(map[string]wrappers.StringValues)}
+		for k, v := range selector.MatchLabels {
+			w.Values[k] = wrappers.StringValues{Values: v}
+		}
+		selectors = append(selectors, types.Selector{
+			MatchLabels: w,
+		})
+	}
 	databaseServer, err := types.NewDatabaseServerV3(types.Metadata{
 		Name: process.Config.HostUUID,
 	}, types.DatabaseServerSpecV3{
 		Hostname:  process.Config.Hostname,
 		HostID:    process.Config.HostUUID,
 		Databases: databases,
+		Selectors: selectors,
 	})
 	if err != nil {
 		return trace.Wrap(err)

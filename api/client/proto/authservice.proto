@@ -92,6 +92,8 @@ message Event {
         // NetworkRestrictions is a resource for network restrictions
         types.NetworkRestrictionsV4 NetworkRestrictions = 25
             [ (gogoproto.jsontag) = "network_restrictions,omitempty" ];
+        // Database is a database resource.
+        types.DatabaseV3 Database = 26 [ (gogoproto.jsontag) = "database,omitempty" ];
     }
 }
 

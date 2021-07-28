@@ -404,6 +404,10 @@ func eventToGRPC(ctx context.Context, in types.Event) (*proto.Event, error) {
 		out.Resource = &proto.Event_DatabaseServer{
 			DatabaseServer: r,
 		}
+	case *types.DatabaseV3:
+		out.Resource = &proto.Event_Database{
+			Database: r,
+		}
 	case *types.ClusterAuditConfigV2:
 		out.Resource = &proto.Event_ClusterAuditConfig{
 			ClusterAuditConfig: r,

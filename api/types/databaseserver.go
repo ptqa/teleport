@@ -47,9 +47,11 @@ type DatabaseServer interface {
 	// Copy returns a copy of this database server object.
 	Copy() DatabaseServer
 	// GetDatabases returns databases this database server proxies.
-	GetDatabases() []Database
+	GetDatabases() Databases
 	// SetDatabases sets databases this database server proxies.
-	SetDatabases([]Database) error
+	SetDatabases(Databases) error
+	// GetSelectors returns database resource selectors.
+	GetSelectors() []Selector
 }
 
 // NewDatabaseServerV3 creates a new database server instance.
@@ -149,8 +151,13 @@ func (s *DatabaseServerV3) SetRotation(r Rotation) {
 	s.Spec.Rotation = r
 }
 
+// GetSelectors returns database resource selectors.
+func (s *DatabaseServerV3) GetSelectors() []Selector {
+	return s.Spec.Selectors
+}
+
 // GetDatabases returns databases this database server proxies.
-func (s *DatabaseServerV3) GetDatabases() (databases []Database) {
+func (s *DatabaseServerV3) GetDatabases() (databases Databases) {
 	if len(s.Spec.Databases) > 0 {
 		for _, database := range s.Spec.Databases {
 			databases = append(databases, database)
@@ -185,7 +192,7 @@ func (s *DatabaseServerV3) GetDatabases() (databases []Database) {
 }
 
 // SetDatabases sets databases this database server proxies.
-func (s *DatabaseServerV3) SetDatabases(databases []Database) error {
+func (s *DatabaseServerV3) SetDatabases(databases Databases) error {
 	databasesV3 := make([]*DatabaseV3, 0, len(databases))
 	for _, database := range databases {
 		databaseV3, ok := database.(*DatabaseV3)
@@ -200,8 +207,16 @@ func (s *DatabaseServerV3) SetDatabases(databases []Database) error {
 
 // String returns the server string representation.
 func (s *DatabaseServerV3) String() string {
-	return fmt.Sprintf("DatabaseServer(Name=%v, Version=%v, Hostname=%v, HostID=%v, Databases=%v)",
-		s.GetName(), s.GetTeleportVersion(), s.GetHostname(), s.GetHostID(), s.GetDatabases())
+	return fmt.Sprintf("DatabaseServer(Name=%v, Version=%v, Hostname=%v, HostID=%v, Databases=%v, Selectors=%v)",
+		s.GetName(), s.GetTeleportVersion(), s.GetHostname(), s.GetHostID(), s.GetDatabases(), s.GetSelectors())
+}
+
+// String returns the selector string representation.
+func (s Selector) String() string {
+	if len(s.MatchLabels.Values) != 0 {
+		return fmt.Sprintf("MatchLabels(%v)", LabelsFromProto(s.MatchLabels))
+	}
+	return ""
 }
 
 // setStaticFields sets static resource header and metadata fields.

@@ -59,10 +59,7 @@ func TestDatabaseServerStart(t *testing.T) {
 		require.Equal(t, "test", labels.Get()["echo"].GetResult())
 	}
 
-	heartbeat, ok := testCtx.server.heartbeats[testCtx.server.cfg.Server.GetName()]
-	require.True(t, ok)
-
-	err = heartbeat.ForceSend(time.Second)
+	err = testCtx.server.heartbeat.ForceSend(time.Second)
 	require.NoError(t, err)
 
 	// Make sure servers were announced and their labels updated.
